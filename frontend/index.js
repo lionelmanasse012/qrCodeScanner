@@ -6,10 +6,14 @@ const qrResultElement = document.getElementById('qr-result');
 
 const codeReader = new BrowserQRCodeReader();
 
-// Fonction pour démarrer la caméra automatiquement
+// Fonction pour démarrer la caméra arrière automatiquement
 async function startCamera() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    // Demander l'accès à la caméra arrière en spécifiant "environment"
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { exact: "environment" } } // Utiliser la caméra arrière
+    });
+
     videoElement.srcObject = stream;
 
     // Démarrer la lecture du QR code directement depuis le flux vidéo
@@ -19,7 +23,7 @@ async function startCamera() {
         qrResultElement.textContent = result.text; // Afficher le QR code détecté
 
         // Envoi de la donnée au serveur pour validation
-        const response = await fetch('https://qr-code-scanner-vgeo.onrender.com/verify-qr', {
+        const response = await fetch('http://localhost:3000/verify-qr', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
