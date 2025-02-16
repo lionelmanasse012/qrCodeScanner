@@ -19,7 +19,7 @@ async function startCamera() {
         qrResultElement.textContent = result.text; // Afficher le QR code détecté
 
         // Envoi de la donnée au serveur pour validation
-        const response = await fetch('https://qr-code-scanner.onrender.com/verify-qr', {
+        const response = await fetch('https://qr-code-scanner-vgeo.onrender.com/verify-qr', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
