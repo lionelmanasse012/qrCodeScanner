@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { Pool } from 'pg'; // PostgreSQL
-
+const { Pool } = pkg; // PostgreSQL package
 const app = express();
 const port = 3000;
 
