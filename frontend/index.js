@@ -22,21 +22,31 @@ async function startCamera() {
         console.log('QR Code détecté :', result.text);
         qrResultElement.textContent = result.text; // Afficher le QR code détecté
 
-        // Envoi de la donnée au serveur pour validation
-        const response = await fetch('http://localhost:3000/verify-qr', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ qrCode: result.text })
-        });
+        // Extraire le QRCodeSerial du QR code
+        const qrData = result.text;
+        const qrCodeSerial = extractQRCodeSerial(qrData);
 
-        const data = await response.json();
-
-        if (data.success) {
-          resultElement.textContent = data.message; // Afficher la réponse du serveur
+        if (!qrCodeSerial) {
+          // Si le QRCodeSerial n'existe pas, alerter l'utilisateur
+          alert('QR Code invalide');
+          resultElement.textContent = 'QR Code invalide';
         } else {
-          resultElement.textContent = data.message; // Afficher la réponse d'erreur
+          // Envoi du QRCodeSerial pour validation dans la base de données
+          const response = await fetch('http://localhost:3000/verify-qr', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ qrCodeSerial })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            resultElement.textContent = data.message; // Afficher la réponse du serveur
+          } else {
+            resultElement.textContent = data.message; // Afficher la réponse d'erreur
+          }
         }
       } else if (err) {
         console.warn(err.message); // Afficher les erreurs mineures
@@ -46,6 +56,19 @@ async function startCamera() {
     console.error('Erreur lors de l\'accès à la caméra:', error);
     alert('Impossible d\'accéder à la caméra. Vérifie les permissions.');
   }
+}
+
+// Fonction pour extraire le QRCodeSerial depuis les données du QR Code
+function extractQRCodeSerial(data) {
+ 
+  const lines = data.split('\n'); // Découpe chaque ligne
+  const serialLine = lines.find(line => line.includes('QRCodeSerial')); // Cherche la ligne contenant QRCodeSerial
+
+  if (serialLine) {
+    const parts = serialLine.split(':').map(item => item.trim());
+    return parts[1]; // Retourne la valeur du QRCodeSerial
+  }
+  return null; // Si QRCodeSerial n'est pas trouvé, retourne null
 }
 
 // Lancer la caméra automatiquement au chargement de la page
