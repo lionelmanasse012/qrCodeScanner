@@ -46,7 +46,7 @@ async function startCamera() {
           resultElement.textContent = 'QR Code invalide';
         } else {
           // Envoi du QRCodeSerial pour validation dans la base de données
-          const response = await fetch('http://localhost:3000/verify-qr', {
+          const response = await fetch('https://qr-code-scanner-vgeo.onrender.com/verify-qr', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
