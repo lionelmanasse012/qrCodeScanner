@@ -9,9 +9,21 @@ const codeReader = new BrowserQRCodeReader();
 // Fonction pour démarrer la caméra arrière automatiquement
 async function startCamera() {
   try {
-    // Demander l'accès à la caméra arrière en spécifiant "environment"
+    // Récupérer tous les appareils disponibles
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+    // Trouver la caméra arrière (si disponible)
+    const backCamera = videoDevices.find(device => device.facing === 'environment');
+    
+    if (!backCamera) {
+      alert('Aucune caméra arrière disponible');
+      return;
+    }
+
+    // Demander l'accès à la caméra arrière spécifiquement
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { exact: "environment" } } // Utiliser la caméra arrière
+      video: { deviceId: backCamera.deviceId }
     });
 
     videoElement.srcObject = stream;
@@ -19,12 +31,14 @@ async function startCamera() {
     // Démarrer la lecture du QR code directement depuis le flux vidéo
     codeReader.decodeFromVideoDevice(null, videoElement, async (result, err) => {
       if (result) {
-        console.log('QR Code détecté :', result.text);
+        console.log('QR Code détecté :', result.text);  // Afficher les données du QR Code
         qrResultElement.textContent = result.text; // Afficher le QR code détecté
 
         // Extraire le QRCodeSerial du QR code
         const qrData = result.text;
         const qrCodeSerial = extractQRCodeSerial(qrData);
+
+        console.log('QRCodeSerial extrait:', qrCodeSerial); // Log pour vérifier l'extraction
 
         if (!qrCodeSerial) {
           // Si le QRCodeSerial n'existe pas, alerter l'utilisateur
@@ -60,7 +74,8 @@ async function startCamera() {
 
 // Fonction pour extraire le QRCodeSerial depuis les données du QR Code
 function extractQRCodeSerial(data) {
- 
+  console.log('Données du QR Code:', data); // Log des données du QR Code
+
   const lines = data.split('\n'); // Découpe chaque ligne
   const serialLine = lines.find(line => line.includes('QRCodeSerial')); // Cherche la ligne contenant QRCodeSerial
 
