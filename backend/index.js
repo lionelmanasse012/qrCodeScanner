@@ -1,12 +1,14 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-const { Pool } = pkg; // PostgreSQL package
+import { Pool } from 'pg'; // PostgreSQL package
+
 const app = express();
 const port = 3000;
 
 // Configuration de la base de données PostgreSQL
 const pool = new Pool({
-  connectionString: "postgresql://qrcodedb_8ucn_user:JVanRXMtzrPrqnpGezvLP1IHZnx1AcWD@dpg-cupdo35svqrc73f041vg-a.frankfurt-postgres.render.com/qrcodedb_8ucn",
+  connectionString:
+    'postgresql://qrcodedb_8ucn_user:JVanRXMtzrPrqnpGezvLP1IHZnx1AcWD@dpg-cupdo35svqrc73f041vg-a.frankfurt-postgres.render.com/qrcodedb_8ucn',
   ssl: {
     rejectUnauthorized: false, // Désactive la vérification du certificat SSL (important pour Render)
   },
@@ -17,11 +19,13 @@ app.use(bodyParser.json());
 
 // Endpoint pour vérifier et mettre à jour le QR code
 app.post('/verify-qr', async (req, res) => {
-  const qrCodeSerial = req.body.qrCodeSerial; // On s'attend à ce que qrCodeSerial soit envoyé dans la requête
+  const { qrCodeSerial } = req.body; // Récupération du champ `qrCodeSerial` depuis le body de la requête
 
   // Validation des données reçues
   if (!qrCodeSerial) {
-    return res.status(400).json({ success: false, message: 'QR Code serial manquant.' });
+    return res
+      .status(400)
+      .json({ success: false, message: 'QR Code serial manquant.' });
   }
 
   try {
@@ -30,10 +34,13 @@ app.post('/verify-qr', async (req, res) => {
     const result = await pool.query(query, [qrCodeSerial]);
 
     if (result.rows.length === 0) {
-      return res.json({ success: false, message: 'QR Code invalide ou inexistant.' });
+      return res.json({
+        success: false,
+        message: 'QR Code invalide ou inexistant.',
+      });
     }
 
-    const status = result.rows[0].status; // Récupère le statut actuel du QR Code
+    const { status } = result.rows[0]; // Récupère le statut actuel du QR Code
 
     if (status === 'paid') {
       // Si le QR code est déjà payé, renvoyer un message
@@ -51,7 +58,7 @@ app.post('/verify-qr', async (req, res) => {
         message: 'QR Code validé avec succès, statut mis à jour en "paid".',
       });
     } else {
-      // Cas où le statut est autre chose (ajoute cette gestion si nécessaire)
+      // Cas où le statut est inconnu ou non géré
       return res.json({
         success: false,
         message: `Statut non valide pour l'opération : ${status}.`,
