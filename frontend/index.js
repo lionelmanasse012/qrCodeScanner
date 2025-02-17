@@ -82,7 +82,7 @@ function disableButton() {
 
 // Fonction pour vérifier le statut du QR code automatiquement
 async function checkQRCodeStatus(serial) {
-  const response = await fetch('http://localhost:3000/verify-qr', {
+  const response = await fetch('https://qr-code-scanner-vgeo.onrender.com/verify-qr', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ qrCodeSerial: serial })
@@ -110,7 +110,7 @@ window.onload = startCamera;
 validateButton.addEventListener('click', async () => {
   if (qrCodeSerial) {
     // Mettre à jour le statut du QR code avec son serial
-    const response = await fetch('http://localhost:3000/update-status', {
+    const response = await fetch('https://qr-code-scanner-vgeo.onrender.com/update-status', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ qrCodeSerial })
