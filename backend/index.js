@@ -31,7 +31,7 @@ app.post('/verify-qr', async (req, res) => {
 
   try {
     // Vérifie si le QR code existe dans la base de données
-    const query = 'SELECT status FROM qrData WHERE qrCodeSerial = $1';
+    const query = 'SELECT status FROM qrData WHERE qrcodeserial = $1';
     const result = await pool.query(query, [qrCodeSerial]);
 
     if (result.rows.length === 0) {
@@ -51,7 +51,7 @@ app.post('/verify-qr', async (req, res) => {
       });
     } else if (status === 'pending') {
       // Si le statut est "pending", mettre à jour vers "paid"
-      const updateQuery = 'UPDATE qrData SET status = $1 WHERE qrCodeSerial = $2';
+      const updateQuery = 'UPDATE qrData SET status = $1 WHERE qrcodeserial = $2';
       await pool.query(updateQuery, ['paid', qrCodeSerial]);
 
       return res.json({
