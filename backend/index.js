@@ -17,20 +17,19 @@ const pool = new Pool({
 });
 
 // Middleware pour gérer CORS
-// app.use(cors({
-//   origin: 'https://qrcodescanner-m728.onrender.com/', // Autoriser votre front-end
-//   methods: ['GET', 'POST'],
-//   allowedHeaders: ['Content-Type'],
-// }));
+app.use(cors({
+  origin: ['http://127.0.0.1:5500', 'https://qrcodescanner-m728.onrender.com'], // Allow multiple domains
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+}));
 
 // Middleware pour parser les requêtes JSON
 app.use(bodyParser.json());
 
 // Endpoint pour vérifier le QR code
 app.post('/verify-qr', async (req, res) => {
-  const { qrCodeSerial } = req.body; // Récupération du champ `qrCodeSerial` depuis le body de la requête
+  const { qrCodeSerial } = req.body;
 
-  // Validation des données reçues
   if (!qrCodeSerial) {
     return res
       .status(400)
@@ -38,7 +37,6 @@ app.post('/verify-qr', async (req, res) => {
   }
 
   try {
-    // Vérifie si le QR code existe dans la base de données
     const query = 'SELECT status FROM qrData WHERE qrcodeserial = $1';
     const result = await pool.query(query, [qrCodeSerial]);
 
@@ -49,13 +47,12 @@ app.post('/verify-qr', async (req, res) => {
       });
     }
 
-    const { status } = result.rows[0]; // Récupère le statut actuel du QR Code
+    const { status } = result.rows[0];
 
-    // Renvoyer le statut trouvé dans la base de données
     return res.json({
       success: true,
-      status: status, // Le statut trouvé dans la base de données
-      message: `Statut du QR Code : ${status}.`, // Message basé sur le statut
+      status,
+      message: `Statut du QR Code : ${status}.`,
     });
   } catch (error) {
     console.error('Erreur lors de la vérification du QR Code:', error);
@@ -70,7 +67,6 @@ app.post('/verify-qr', async (req, res) => {
 app.post('/update-status', async (req, res) => {
   const { qrCodeSerial } = req.body;
 
-  // Validation des données reçues
   if (!qrCodeSerial) {
     return res
       .status(400)
@@ -78,7 +74,6 @@ app.post('/update-status', async (req, res) => {
   }
 
   try {
-    // Vérifie si le QR code existe dans la base de données
     const query = 'SELECT status FROM qrData WHERE qrcodeserial = $1';
     const result = await pool.query(query, [qrCodeSerial]);
 
@@ -91,7 +86,6 @@ app.post('/update-status', async (req, res) => {
 
     const { status } = result.rows[0];
 
-    // Si le statut est déjà "paid", ne pas faire de mise à jour
     if (status === 'paid') {
       return res.json({
         success: false,
@@ -99,7 +93,6 @@ app.post('/update-status', async (req, res) => {
       });
     }
 
-    // Mettre à jour le statut en "paid"
     const updateQuery = 'UPDATE qrData SET status = $1 WHERE qrcodeserial = $2';
     await pool.query(updateQuery, ['paid', qrCodeSerial]);
 
