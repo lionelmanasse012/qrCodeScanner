@@ -18,7 +18,7 @@ const pool = new Pool({
 
 // Middleware pour gérer CORS
 app.use(cors({
-  origin: 'http://127.0.0.1:5500', // Autoriser votre front-end
+  origin: 'https://qrcodescanner-m728.onrender.com/', // Autoriser votre front-end
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
