@@ -40,13 +40,11 @@ function scanQRCode() {
 
   codeReader.decodeFromVideoDevice(null, videoElement, (result, err) => {
     if (result) {
-      console.log('QR Code détecté :', result.text);
 
       // Si un QR Code a déjà été détecté, on arrête le scan
       if (qrCodeSerial) return;
 
       qrCodeSerial = extractQRCodeSerial(result.text);
-      console.log('QRCodeSerial extrait:', qrCodeSerial);
 
       if (!qrCodeSerial) {
         Swal.fire('QR Code invalide', 'Essayez un autre QR Code.', 'error').then(() => {
@@ -66,7 +64,6 @@ function scanQRCode() {
 
 // Fonction pour extraire le QRCodeSerial
 function extractQRCodeSerial(data) {
-  console.log('Données du QR Code:', data);
   const lines = data.split('\n');
   const serialLine = lines.find(line => line.includes('QRCodeSerial'));
 
@@ -89,7 +86,6 @@ async function checkQRCodeStatus(serial) {
     });
 
     const data = await response.json();
-    console.log('Réponse du serveur:', data);
 
     hideAlert(); // Fermer le loader après la réponse
 
@@ -141,7 +137,6 @@ async function payTicket(serial) {
     });
 
     const data = await response.json();
-    console.log('Réponse du serveur:', data);
 
     hideAlert(); // Fermer le loader après la réponse
 
