@@ -11,7 +11,25 @@ let videoStream = null;  // Flux vidéo
 // Fonction pour démarrer la caméra et le scan
 async function startCamera() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    // Récupérer la liste des périphériques vidéo (caméras)
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+    // Vérifier s'il existe des caméras vidéo disponibles
+    if (videoDevices.length === 0) {
+      Swal.fire('Erreur', 'Aucune caméra disponible. Assurez-vous que votre appareil en dispose.', 'error');
+      return;
+    }
+
+    // Utiliser le premier périphérique vidéo disponible
+    const firstCamera = videoDevices[0];
+
+    // Obtenir le flux vidéo du premier périphérique vidéo
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        deviceId: { exact: firstCamera.deviceId }
+      }
+    });
 
     if (!stream) {
       Swal.fire('Erreur', 'Impossible d\'accéder au flux vidéo', 'error');
